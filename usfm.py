@@ -24,6 +24,7 @@ def main():
     cPickle.dump(output, out_file)
 
 def parse_usfm(lines):
+    collect_anyway = ["wj", "add", "nd", "pn", "qt", "sig", "tl", "em", "bd", "it", "bdit", "no", "sc"]
     out = OrderedDict()
     chapter = 0
     for line in lines:
@@ -35,11 +36,22 @@ def parse_usfm(lines):
             for word in words[2:]:
                 if "\\" in word and "*" not in word:
                     collect = False
+                    for tag in collect_anyway:
+                        if tag in word:
+                            collect = True
+                            break
                 elif "\\" in word and "*" in word:
                     collect = True
                 elif collect == True:
                     verse_text.append(word)
             out[chapter][verse_number] = " ".join(verse_text)
+        elif line.startswith("\\q"):
+            words = line.split()
+            if len(words) == 1:
+                continue
+            verse = out[chapter][verse_number]
+            verse += " " + " ".join(words[1:])
+            out[chapter][verse_number] = verse
         elif line.startswith("\\c"):
             chapter = int(line.split()[1])
             out[chapter] = OrderedDict()
