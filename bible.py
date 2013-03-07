@@ -1,11 +1,14 @@
 import cPickle as pickle
+import sys
+if sys.version_info < (2, 7):
+    raise ImportError("Python 2.7 or above is required; you're using '{0}'".format(sys.version))
 
 class Bible(object):
     def __init__(self, version="asv"):
         try:
             self.bible = pickle.load(open("bibles/{}.pk1".format(version), "rb"))
         except IOError:
-            raise NonExistant
+            raise NonExistant("version '{}' not found".format(version))
         self.version = version
     
     def get_book(self, book):
@@ -17,13 +20,13 @@ class Bible(object):
         book_dict = self.get_book(book)
         if chapter in book_dict:
             return book_dict[chapter]
-        raise NonExistant("Book {} doesn't contain chapter {}".format(book, chapter))
+        raise NonExistant("Book '{}' doesn't contain chapter {}".format(book, chapter))
     
     def get_verse(self, book, chapter, verse):
         chapter_dict = self.get_chapter(book, chapter)
         if verse in chapter_dict:
             return chapter_dict[verse]
-        raise NonExistant("{} {} doesn't have a verse {}".format(book, chapter, verse))
+        raise NonExistant("Book '{}' chapter {} doesn't have a verse {}".format(book, chapter, verse))
     
     def get(self, book, chapter=0, verse=0):
         if verse > 0:
