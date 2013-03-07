@@ -52,3 +52,11 @@ def list_verses(book, chapter):
         return flask.jsonify(bible.list_verses(book, chapter, version))
     except b.NonExistant as err:
         return flask.jsonify(generate_error(err, version=version, book=book, chapter=chapter, help="Either that version, book, or chapter doesn't exist.")), 404
+
+@app.route("/crash")
+def crash():
+    raise Exception("Test crash")
+
+if app.config["DEBUG"] == True:
+    from werkzeug.debug import DebuggedApplication
+    app = DebuggedApplication(app, evalex=True)
