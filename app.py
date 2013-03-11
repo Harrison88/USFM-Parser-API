@@ -1,4 +1,4 @@
-import os
+import os, sys
 import flask
 import bible as b
 
@@ -57,6 +57,13 @@ def list_verses(book, chapter):
 def crash():
     raise Exception("Test crash")
 
-if app.config["DEBUG"] == True:
-    from werkzeug.debug import DebuggedApplication
-    app = DebuggedApplication(app, evalex=True)
+if __name__ == "__main__":
+    host = "0.0.0.0"
+    port = 8080
+    for arg in sys.argv:
+        if "--host" in arg:
+            host = arg.split("=")[1]
+        elif "--port" in arg:
+            port = int(arg.split("=")[1])
+    
+    app.run(host=host, port=port)
