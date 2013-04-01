@@ -23,8 +23,8 @@ def get(id):
         return flask.jsonify(generate_error(err, id=id, help="The ID you sent was malformed in some way; remember it should be in the form bbcccvvv like 01001001 for Genesis 1:1")), 400
         
     try:
-        if verse:
-            return flask.jsonify({verse: bible.get(book, chapter, verse, version)})
+        #if verse:
+        #    return flask.jsonify({verse: bible.get(book, chapter, verse, version)})
         return flask.jsonify(bible.get(book, chapter, verse, version))
     except b.NonExistant as err:
         return flask.jsonify(generate_error(err, id=id, version=version, help="That version or book/chapter/verse doesn't exist. If you're sure it does, that's a bug--please report it")), 404
