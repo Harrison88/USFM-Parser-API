@@ -5,6 +5,14 @@ import cPickle
 from collections import OrderedDict
 
 def main():
+
+    """The main function. Finds USFM files in a directory and turns them into an OrderedDict.
+    
+    Command-line arguments:
+    The first one should be a directory containing .usfm files.
+    The second one should be a .pk1 file for output.
+    """
+
     output = OrderedDict()
     
     directory = sys.argv[1]
@@ -24,6 +32,22 @@ def main():
     cPickle.dump(output, out_file)
 
 def parse_usfm(lines, book_number):
+
+    """Parses the lines of a USFM file into an OrderedDict.
+    
+    Basically some of the worst code I've ever written. Be prepared for a rewrite.
+    
+    Arguments:
+    lines -- the lines of a USFM file (usfm_file.readlines())
+    book_number -- the number of the book being parsed (1-66)
+    
+    Returns a structure like this:
+    OrderedDict({"code": "01000000", "1": OrderedDict({"code": "01001000", "1": {"code": "01001001", "text": Genesis_one_one_text})})
+    ^ Probably not very helpful, is it?
+    """
+
+    # There are several formatting-related tokens that can appear in the middle of a verse.
+    # Ignore them, while still collecting the text they wrap.
     collect_anyway = ["wj", "add", "nd", "pn", "qt", "sig", "tl", "em", "bd", "it", "bdit", "no", "sc"]
     out = OrderedDict()
     if book_number < 10:
@@ -37,6 +61,7 @@ def parse_usfm(lines, book_number):
     for line in lines:
             
         if line.startswith("\\v"):
+            # If the line contains the text of a verse.
             words = line.split()
             verse_number = int(words[1])
             if verse_number < 10:
@@ -60,6 +85,7 @@ def parse_usfm(lines, book_number):
                     verse_text.append(word)
             out[chapter][verse_number] = {"text": " ".join(verse_text), "code": book_string + chapter_string + verse_string}
         elif line.startswith("\\q"):
+            # If the line is a poetic (normally indented) line, who cares? Append the text to the current verse number.
             words = line.split()
             if len(words) == 1:
                 continue
@@ -67,6 +93,7 @@ def parse_usfm(lines, book_number):
             verse += " " + " ".join(words[1:])
             out[chapter][verse_number]["text"] = verse
         elif line.startswith("\\c"):
+            # If the line starts a new chapter.
             chapter = int(line.split()[1])
             if chapter < 10:
                 chapter_string = "00" + str(chapter)
