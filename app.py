@@ -7,6 +7,10 @@ app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
 def generate_error(err, **kwargs):
+    """Generate an error message to be sent to client.
+    
+    There really is no reason for the try/except block. Should be removed.
+    """
     try:
         message = {"error": err.message}
         message.update(kwargs)
@@ -16,6 +20,16 @@ def generate_error(err, **kwargs):
 
 @app.route("/<id>")
 def get(id):
+    
+    """Get a Bible ID and convert it to JSON.
+    
+    Argument:
+    id -- an eight digit ID like 01001001 (Genesis 1:1)
+        This is automatically filled in by Flask when a url like /01001001 is visited
+    
+    A specific version can be used by passing in a version argument in the query string. (default "kjv")
+    """
+    
     version = flask.request.args.get("version", "kjv")
     try:
         book, chapter, verse = int(id[0:2]), int(id[2:5]), int(id[5:8])
@@ -35,6 +49,13 @@ def get(id):
 
 @app.route("/list/")
 def list_books():
+    """Get a list of book keys and convert it to JSON.
+    
+    The URL is "/list/".
+    
+    First puts the list in a dict like this {"books": list_of_book_keys} because Flask likes dicts at the top level of JSON output.
+    http://flask.pocoo.org/docs/security/#json-security
+    """
     version = flask.request.args.get("version", "kjv")
     try:
         return flask.jsonify({"books": bible.list_books(version)})
@@ -44,6 +65,16 @@ def list_books():
 
 @app.route("/list/<book>")
 def list_chapters(book):
+    """Get a list of chapter numbers in a book and convert it to JSON.
+    
+    The URL is "/list/<book>".
+    
+    Argument:
+    book -- the book key get the chapters of.
+        Automatically filled in by Flask when a URL like "/list/1" is visited.
+    
+    A specific version can be used by passing in a "version" argument in the query string. (default "kjv")
+    """
     version = flask.request.args.get("version", "kjv")
     try:
         return flask.jsonify({book: bible.list_chapters(book, version)})
@@ -55,6 +86,17 @@ def list_chapters(book):
 
 @app.route("/list/<book>/<int:chapter>")
 def list_verses(book, chapter):
+    """Get a list of verse numbers in a chapter and convert it to JSON.
+    
+    The URL is "/list/<book>/<int:chapter>".
+    
+    Arguments:
+    book -- the book key.
+    chapter -- the chapter number to get the verses of.
+        These are automatically filled in by Flask when a URL like "/list/1/1" is visited.
+    
+    A specific version can be used by passing in a version argument in the query string. (default "kjv")
+    """
     version = flask.request.args.get("version", "kjv")
     try:
         return flask.jsonify(bible.list_verses(book, chapter, version))
@@ -65,6 +107,7 @@ def list_verses(book, chapter):
 
 @app.route("/crash")
 def crash():
+    """A test to see what happens when the app crashes. Use it to play around with the debugger."""
     raise Exception("Test crash")
 
 if __name__ == "__main__":
