@@ -19,7 +19,7 @@ class Bible(object):
         version -- a Bible version corresponding to a .pk1 file in bibles/ (default "asv")
         """
         try:
-            self.bible = pickle.load(open("bibles/{}.pk1".format(version), "rb"))
+            self.bible = pickle.load(open("bibles/output/{}.pk1".format(version), "rb"))
         except IOError:
             raise NonExistant("version '{}' not found".format(version))
         self.version = version

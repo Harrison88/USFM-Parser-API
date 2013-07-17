@@ -1,0 +1,2 @@
+dict = {"KJV": {"USFM": "http://ebible.org/kjv/eng-kjv_usfm.zip", "USFX": "http://ebible.org/kjv/eng-kjv_usfx.zip"},
+        "ASV": {"USFM": "http://ebible.org/asv/eng-asv_usfm.zip", "USFX": "http://ebible.org/eng-asv/eng-asv_usfx.zip"}}
