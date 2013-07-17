@@ -11,6 +11,9 @@ def main():
     arg_parser.add_argument("-a", "--all", action="store_true",
         help="Find and parse as many versions as possible")
     
+    arg_parser.add_argument("-p", "--parse", action="append",
+        help="Parse only a specific version -- can be specified multiple times")
+    
     arg_parser.add_argument("-o", "--output_dir",
         help="Output directory to put parsed Bibles in")
     
@@ -20,6 +23,8 @@ def main():
     if args.all:
         print "Finding all"
         find_and_parse_all()
+    elif args.parse:
+        find_and_parse_all(args.parse)
 
 def find_and_parse_all(version_list=known_versions.dict.keys()):
     for version in version_list:
