@@ -27,7 +27,7 @@ class USFMParser(BaseParser):
             code = self.make_code(number)
             
             with open(filename) as usfm_file:
-                output[code] = self.parse_file(usfm_file, number)
+                output[number] = self.parse_file(usfm_file, number)
             
         return pickle.dumps(output)
     
