@@ -1,25 +1,29 @@
 import cPickle as pickle
+import os
 import sys
 if sys.version_info < (2, 7):
     # OrderedDict, the type that the Bibles are stored as, is new in 2.7.
     raise ImportError(("Python 2.7 or above is required;"
                        "you're using '{0}'").format(sys.version))
 
-class Bible(object):
+class BibleWrapper(object):
 
-    """Bible is a helper for accessing a raw Bible.
+    """BibleWrapper is a helper for accessing a raw Bible.
     
-    >>>b = Bible(version="kjv")
+    >>>b = BibleWrapper(version="kjv")
     """
 
+    location = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output", "{}.pk1")
+
     def __init__(self, version="asv"):
-        """Initialize a Bible instance, loading a Bible from a file.
+        """Initialize a BibleWrapper instance, loading a Bible from a file.
         
         Keyword argument:
-        version -- a Bible version corresponding to a .pk1 file in bibles/ (default "asv")
+        version -- a Bible version corresponding to a .pk1 file in output/ (default "asv")
         """
+        print self.location
         try:
-            self.bible = pickle.load(open("bibles/{}.pk1".format(version), "rb"))
+            self.bible = pickle.load(open(self.location.format(version), "rb"))
         except IOError:
             raise NonExistant("version '{}' not found".format(version))
         self.version = version
@@ -102,18 +106,18 @@ class Bible(object):
         chapter = self.get_chapter(book, chapter)
         return chapter.keys()
 
-class BibleWrapper(object):
+class MultiBibleWrapper(object):
     
-    """BibleWrapper wraps multiple standard Bible objects into one.
+    """MultiBibleWrapper wraps multiple standard BibleWrapper objects into one.
     
-    Supports nearly the same interface as Bible, with a keyword argument added:
+    Supports nearly the same interface as BibleWrapper, with a keyword argument added:
     version -- the version of the Bible to use (default "kjv")
     
     Versions are implicitly loaded when an unloaded version is specified.
     """
     
     def __init__(self):
-        """Initialize a BibleWrapper instance. No versions are loaded at this point."""
+        """Initialize a MultiBibleWrapper instance. No versions are loaded at this point."""
         self.bibles = {}
 
     def load_version(self, version):
@@ -121,10 +125,10 @@ class BibleWrapper(object):
         
         Maybe should be made private?"""
         if version not in self.bibles:
-            self.bibles[version] = Bible(version)
+            self.bibles[version] = BibleWrapper(version)
 
     def get(self, book, chapter=0, verse=0, version="kjv"):
-        """Calls Bible.get using the specified version. (default "kjv") """
+        """Calls BibleWrapper.get using the specified version. (default "kjv") """
         if version not in self.bibles:
             self.load_version(version)
         return self.bibles[version].get(book, chapter, verse)

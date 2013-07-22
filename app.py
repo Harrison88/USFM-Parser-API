@@ -1,8 +1,8 @@
 import sys
 import flask
-import bible as b
+from bibles import wrappers as b
 
-bible = b.BibleWrapper()
+bible = b.MultiBibleWrapper()
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
