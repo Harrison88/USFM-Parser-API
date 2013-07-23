@@ -39,7 +39,7 @@ def find_and_parse(version):
     return output(version, parsed_file)
 
 def output(version, parsed_file, ext="pk1"):
-    output_dir = "./output/"
+    output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
     if args.output_dir:
         output_dir = args.output_dir
     
