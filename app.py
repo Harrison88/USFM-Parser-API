@@ -63,7 +63,7 @@ def list_books():
         return flask.jsonify(generate_error(err, version=version,
                                 help="That version doesn't appear to exist.")), 404
 
-@app.route("/list/<book>")
+@app.route("/list/<int:book>")
 def list_chapters(book):
     """Get a list of chapter numbers in a book and convert it to JSON.
     
