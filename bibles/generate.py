@@ -1,4 +1,5 @@
 import os
+import cPickle as pickle
 import argparse
 arg_parser = argparse.ArgumentParser()
 
@@ -35,10 +36,12 @@ def find_and_parse(version):
     Parser, filetype = parsers.select_parser(version_info)
     file = requests.get(version_info[filetype]).content
     
-    parsed_file = Parser(file).parse()
-    return output(version, parsed_file)
+    parser = Parser()
+    parser.parse_zip(file)
+    
+    return output(version, parser.data)
 
-def output(version, parsed_file, ext="pk1"):
+def output(version, data, ext="pk1"):
     output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
     if args.output_dir:
         output_dir = args.output_dir
@@ -48,10 +51,9 @@ def output(version, parsed_file, ext="pk1"):
     
     output_filename = os.path.join(output_dir, filename)
     with open(output_filename, "w") as output_file:
-        output_file.write(parsed_file)
+        pickle.dump(data, output_file, pickle.HIGHEST_PROTOCOL)
     
     return True
-
 
 if __name__ == "__main__":
     main()
