@@ -9,68 +9,50 @@ from utils.zip_tools import unzip
 class USFMParser(BaseParser):
     
     ext = "usfm"
+    continued_text_tags = {"\\wj", "\\add", "\\nd", "\\pn", "\\qt", "\\sig", "\\tl", "\\em", "\\bd", "\\it", "\\bdit", "\\no", "\\sc", "\\q"}
     
-    def parse(self):
-        unzipped = unzip(self.file)
-        if not unzipped:
-            return False
+    def _parse(self):
+        usfm_lines = self.raw_data.splitlines()
+        self.raw_data = ""
+        for line in usfm_lines:
+            if self.parse_line(line) is False:
+                break
+    
+    def parse_line(self, line):
+        tokens = line.split()
+        tag = tokens[0]
         
-        output = OrderedDict()
-        filenames = sorted(self.glob_ext(unzipped))
-        for filename in filenames:
-            number = int(os.path.split(filename)[-1][0:2])
-            if number > 39 and number < 64:
-                continue
-            if number > 63:
-                number -= 24
-            
-            code = self.make_code(number)
-            
-            with open(filename) as usfm_file:
-                output[number] = self.parse_file(usfm_file, number)
-            
-        return pickle.dumps(output)
-    
-    def parse_file(self, usfm_file, book_number):
-        output = OrderedDict()
-        for line in usfm_file:
-            if line.startswith("\\v"):
-                tokens = line.split()
-                verse = int(tokens[1])
-                verse_code = self.make_code(book_number, chapter, verse)
-                verse_text = self.collect_text(tokens[2:])
-                
-                output[chapter][verse] = {"text": verse_text, "code": verse_code}
-            
-            elif line.startswith("\\q"):
-                tokens = line.split()
+        if tag == "\\v":
+            verse_number = self.verse = int(tokens[1])
+            self.add_text(self.collect_text(tokens[2:]))
+        
+        elif tag in self.continued_text_tags:
+            if tag == "\\q":
                 if len(tokens) == 1:
-                    continue
-                
-                text = output[chapter][verse]["text"]
-                text += " " + " ".join(tokens[1:])
-                output[chapter][verse]["text"] = text
-            
-            elif line.startswith("\\c"):
-                chapter = int(line.split()[1])
-                chapter_code = self.make_code(book_number, chapter)
-                
-                output[chapter] = OrderedDict({"code": chapter_code})
-            
-        return output
+                    return
+                self.add_text(self.collect_text(tokens[1:]))
+            else:
+                self.add_text(self.collect_text(tokens))
+        
+        elif tag == "\\c":
+            chapter = self.chapter = int(tokens[1])
+            self.data[self.book][chapter] = OrderedDict({"code": self.make_code(self.book, chapter)})
+        
+        elif tag == "\\toc3":
+            if tokens[1].lower() not in self.book_names:
+                return False
+            self.book += 1
+            self.data[self.book] = OrderedDict({"code": self.make_code(self.book)})
     
     def collect_text(self, tokens):
-        collect_anyway = ["wj", "add", "nd", "pn", "qt", "sig", "tl", "em", "bd", "it", "bdit", "no", "sc"]
         text = []
         
         collect = True
         for token in tokens:
             if "\\" in token and "*" not in token:
                 collect = False
-                for tag in collect_anyway:
-                    if tag in token:
-                        collect = True
-                        break
+                if token in self.continued_text_tags:
+                    collect = True
             
             elif "\\" in token and "*" in token:
                 collect = True
@@ -79,3 +61,15 @@ class USFMParser(BaseParser):
                 text.append(token)
         
         return " ".join(text)
+    
+    def parse_zip(self, zip_file):
+        unzipped = unzip(zip_file)
+        if not unzipped:
+            return False
+
+        filenames = sorted(self.glob_ext(unzipped))
+        for filename in filenames:
+            with open(filename) as usfm_file:
+                self.feed(usfm_file.read())
+            
+        return True
