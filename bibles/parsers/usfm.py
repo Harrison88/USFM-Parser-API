@@ -19,7 +19,7 @@ class USFMParser(BaseParser):
                 break
     
     def parse_line(self, line):
-        tokens = line.split()
+        tokens = self.tokenize(line)
         tag = tokens[0]
         
         if tag == "\\v":
@@ -61,6 +61,19 @@ class USFMParser(BaseParser):
                 text.append(token)
         
         return " ".join(text)
+    
+    def tokenize(self, line):
+        tokens = line.split()
+        new = []
+        for token in tokens:
+            if "\\" in token and not token.startswith("\\"):
+                word, tag = token.split("\\")
+                tag = "\\" + tag
+                new.append(word); new.append(tag)
+            else:
+                new.append(token)
+        
+        return new
     
     def parse_zip(self, zip_file):
         unzipped = unzip(zip_file)
