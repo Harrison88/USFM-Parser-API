@@ -47,6 +47,9 @@ usfm_continued_text = """\\c 4
 \\v 6 And saith unto him, If thou be the Son of God, cast thyself down: for it is written, He shall give his angels charge concerning thee: and in
 \\add their \\add* hands they shall bear thee up, lest at any time thou dash thy foot against a stone."""
 
+usfm_inconsistent_spacing = """\\c 4
+\\v 25 And there followed him great multitudes of people from Galilee, and\\add from\\add* Decapolis, and \\add from\\add* Jerusalem, and \\add from \\add* Judaea, and \\add from\\add* beyond Jordan."""
+
 class TestUSFMParser(unittest.TestCase):
     
     def setUp(self):
@@ -73,3 +76,9 @@ class TestUSFMParser(unittest.TestCase):
         
         self.assertEqual(self.parser.data[1][4][6]["text"],
             "And saith unto him, If thou be the Son of God, cast thyself down: for it is written, He shall give his angels charge concerning thee: and in their hands they shall bear thee up, lest at any time thou dash thy foot against a stone.")
+
+    def test_usfm_inconsistent_spacing(self):
+        self.parser.feed(usfm_inconsistent_spacing)
+        
+        self.assertEqual(self.parser.data[1][4][25]["text"],
+            "And there followed him great multitudes of people from Galilee, and from Decapolis, and from Jerusalem, and from Judaea, and from beyond Jordan.")
