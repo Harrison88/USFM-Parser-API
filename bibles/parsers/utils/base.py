@@ -56,6 +56,14 @@ class BaseParser(object):
         return glob.glob(pattern)
     
     def make_code(self, book, chapter=0, verse=0):
+        def check(value, min, max):
+            if value < min or value > max:
+                raise ValueError("Illegal value ({0}) found during code creation".format(value))
+        
+        check(book, 1, 99)
+        check(chapter, 0, 999)
+        check(verse, 0, 999)
+        
         if book < 10:
             book = "0" + str(book)
         else:

@@ -25,6 +25,8 @@ class TestBaseParser(unittest.TestCase):
         self.assertRaises(ValueError, make_code, -1)
         self.assertRaises(ValueError, make_code, 1, -1)
         self.assertRaises(ValueError, make_code, 1, 1, -1)
+        
+        self.assertRaises(ValueError, make_code, "foo")
 
 
 usfm_beginning = """\\id MAT 40-MAT-kjv.sfm The King James Version of the Holy Bible Wednesday, October 14, 2009
