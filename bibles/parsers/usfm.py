@@ -67,9 +67,18 @@ class USFMParser(BaseParser):
         new = []
         for token in tokens:
             if "\\" in token and not token.startswith("\\"):
-                word, tag = token.split("\\")
-                tag = "\\" + tag
-                new.append(word); new.append(tag)
+                split = token.split("\\")
+                new.append(split[0])
+                del split[0]
+                for tag in split:
+                    new.append("\\" + tag)
+                
+            elif "\\" in token and token.startswith("\\"):
+                if len(token.split("\\")) > 2:
+                    new.extend(["\\" + tag for tag in token.split("\\")])
+                else:
+                    new.append(token)
+                
             else:
                 new.append(token)
         
