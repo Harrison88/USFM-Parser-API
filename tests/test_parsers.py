@@ -48,7 +48,7 @@ usfm_continued_text = """\\c 4
 \\add their \\add* hands they shall bear thee up, lest at any time thou dash thy foot against a stone."""
 
 usfm_inconsistent_spacing = """\\c 4
-\\v 25 And there followed him great multitudes of people from Galilee, and\\add from\\add* Decapolis, and \\add from\\add* Jerusalem, and \\add from \\add* Judaea, and \\add from\\add* beyond Jordan."""
+\\v 25 And there followed him great multitudes of people from Galilee, and\\add from\\add* Decapolis, and \\wj\\add from\\add*\\wj* Jerusalem, and \\add from \\add* Judaea, and \\add from\\add* beyond Jordan."""
 
 class TestUSFMParser(unittest.TestCase):
     
