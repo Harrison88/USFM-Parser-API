@@ -40,7 +40,7 @@ def get(id):
                                 " bbcccvvv like 01001001 for Genesis 1:1"))), 400
 
     try:
-        return flask.jsonify(bible.get(book, chapter, verse, version))
+        return flask.jsonify({"text": bible.get(book, chapter, verse, version)})
     except b.NonExistant as err:
         return flask.jsonify(generate_error(err, id=id, version=version,
                                 help=("That version or book/chapter/verse"

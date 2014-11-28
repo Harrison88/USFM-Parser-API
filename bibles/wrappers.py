@@ -63,8 +63,7 @@ class BibleWrapper(object):
         chapter -- a chapter in the book
         verse -- a verse in the chapter
         
-        Returns a regular dict like {"text": text, "code": code}
-        where "code" is an eight digit id like 01001001 (Genesis 1:1).
+        Returns the text of the verse as a string.
         """
         chapter_dict = self.get_chapter(book, chapter)
         if verse in chapter_dict:

@@ -36,13 +36,13 @@ class USFMParser(BaseParser):
         
         elif tag == "\\c":
             chapter = self.chapter = int(tokens[1])
-            self.data[self.book][chapter] = OrderedDict({"code": self.make_code(self.book, chapter)})
+            self.data[self.book][chapter] = OrderedDict()
         
         elif tag == "\\toc3":
             if tokens[1].lower() not in self.book_names:
                 return False
             self.book += 1
-            self.data[self.book] = OrderedDict({"code": self.make_code(self.book)})
+            self.data[self.book] = OrderedDict()
     
     def collect_text(self, tokens):
         text = []

@@ -40,12 +40,7 @@ class BaseParser(object):
         if verse == 0:
             verse = self.verse
         
-        if verse in self.data[book][chapter]:
-            current_text = self.data[book][chapter][verse]["text"]
-            new_text = current_text + " " + text
-            self.data[book][chapter][verse]["text"] = new_text
-        else:
-            self.data[book][chapter][verse] = {"text": text, "code": self.make_code(book, chapter, verse)}
+        self.data[book][chapter][verse] = text
 
     def glob_ext(self, dir, ext=None):
         used_ext = self.ext
@@ -54,33 +49,3 @@ class BaseParser(object):
         
         pattern = os.path.join(dir, "*.{0}".format(used_ext))
         return glob.glob(pattern)
-    
-    def make_code(self, book, chapter=0, verse=0):
-        def check(value, min, max):
-            if value < min or value > max:
-                raise ValueError("Illegal value ({0}) found during code creation".format(value))
-        
-        check(book, 1, 99)
-        check(chapter, 0, 999)
-        check(verse, 0, 999)
-        
-        if book < 10:
-            book = "0" + str(book)
-        else:
-            book = str(book)
-        
-        if chapter < 10:
-            chapter = "00" + str(chapter)
-        elif chapter < 100:
-            chapter = "0" + str(chapter)
-        else:
-            chapter = str(chapter)
-        
-        if verse < 10:
-            verse = "00" + str(verse)
-        elif verse < 100:
-            verse = "0" + str(verse)
-        else:
-            verse = str(verse)
-        
-        return book + chapter + verse
