@@ -3,30 +3,7 @@ import unittest
 
 sys.path.append("..")
 
-from bibles.parsers.utils import base
 from bibles.parsers import usfm
-
-class TestBaseParser(unittest.TestCase):
-    
-    def setUp(self):
-        self.parser = base.BaseParser()
-    
-    def test_make_codes(self):
-        self.assertEqual(self.parser.make_code(1), "01000000", "Book code was made incorrectly")
-        self.assertEqual(self.parser.make_code(1, 1), "01001000", "Chapter code was made incorrectly")
-        self.assertEqual(self.parser.make_code(1, 1, 1), "01001001", "Verse code was made incorrectly")
-        
-    def test_code_limits(self):
-        make_code = self.parser.make_code
-        self.assertRaises(ValueError, make_code, 100)
-        self.assertRaises(ValueError, make_code, 1, 1000)
-        self.assertRaises(ValueError, make_code, 1, 1, 1000)
-        
-        self.assertRaises(ValueError, make_code, -1)
-        self.assertRaises(ValueError, make_code, 1, -1)
-        self.assertRaises(ValueError, make_code, 1, 1, -1)
-        
-        self.assertRaises(ValueError, make_code, "foo")
 
 
 usfm_beginning = """\\id MAT 40-MAT-kjv.sfm The King James Version of the Holy Bible Wednesday, October 14, 2009
@@ -50,6 +27,16 @@ usfm_continued_text = """\\c 4
 usfm_inconsistent_spacing = """\\c 4
 \\v 25 And there followed him great multitudes of people from Galilee, and\\add from\\add* Decapolis, and \\wj\\add from\\add*\\wj* Jerusalem, and \\add from \\add* Judaea, and \\add from\\add* beyond Jordan."""
 
+usfm_multiline_simple = """\\c 1
+\\v 1 The book of the generation of
+Jesus Christ, the son of David, the son of Abraham."""
+
+usfm_multiline_complex = """\\c 4  
+\\v 1  Hear me when I call, O God of my righteousness: thou hast enlarged me
+\\add when I was\\add* in distress; have mercy upon me, and hear my
+prayer.\\f +  \\ft chief...: or, overseer\\f*\\f +  \\ft have...: or, be gracious unto
+me\\f*"""
+
 class TestUSFMParser(unittest.TestCase):
     
     def setUp(self):
@@ -62,23 +49,35 @@ class TestUSFMParser(unittest.TestCase):
     def test_usfm_simple_verse(self):
         self.parser.feed(usfm_simple_verse)
         
-        self.assertEqual(self.parser.data[1][1][1]["text"],
+        self.assertEqual(self.parser.data[1][1][1],
             "The book of the generation of Jesus Christ, the son of David, the son of Abraham.")
         
     def test_usfm_nested_tags(self):
         self.parser.feed(usfm_nested_tags)
         
-        self.assertEqual(self.parser.data[1][3][15]["text"],
+        self.assertEqual(self.parser.data[1][3][15],
             "And Jesus answering said unto him, Suffer it to be so now: for thus it becometh us to fulfil all righteousness. Then he suffered him.")
     
     def test_usfm_continued_text(self):
         self.parser.feed(usfm_continued_text)
         
-        self.assertEqual(self.parser.data[1][4][6]["text"],
+        self.assertEqual(self.parser.data[1][4][6],
             "And saith unto him, If thou be the Son of God, cast thyself down: for it is written, He shall give his angels charge concerning thee: and in their hands they shall bear thee up, lest at any time thou dash thy foot against a stone.")
 
     def test_usfm_inconsistent_spacing(self):
         self.parser.feed(usfm_inconsistent_spacing)
         
-        self.assertEqual(self.parser.data[1][4][25]["text"],
+        self.assertEqual(self.parser.data[1][4][25],
             "And there followed him great multitudes of people from Galilee, and from Decapolis, and from Jerusalem, and from Judaea, and from beyond Jordan.")
+            
+    def test_usfm_multiline_simple(self):
+        self.parser.feed(usfm_multiline_simple)
+        
+        self.assertEqual(self.parser.data[1][1][1],
+            "The book of the generation of Jesus Christ, the son of David, the son of Abraham.")
+        
+    def test_usfm_multiline_complex(self):
+        self.parser.feed(usfm_multiline_complex)
+        
+        self.assertEqual(self.parser.data[1][4][1],
+            "Hear me when I call, O God of my righteousness: thou hast enlarged me when I was in distress; have mercy upon me, and hear my prayer.")
